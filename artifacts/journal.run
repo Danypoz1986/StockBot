@@ -1,0 +1,241 @@
+{"when":1727347772,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727347772,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.173s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727347772,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.013s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14084/19104)"}
+{"when":1727347772,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.012s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727347772,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.225s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727347773,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.434s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727347773,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727347773,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727347773,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was FAILURE, reason: exit status 1","comment":"rcc point of view"}
+{"when":1727347773,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727347773,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727347849,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727347849,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.135s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727347849,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.010s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14084/12480)"}
+{"when":1727347850,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.013s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727347850,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.162s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727347850,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.445s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727347850,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727347850,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727347851,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[23980:python.exe]"}
+{"when":1727347855,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 2 ... map[4976:cmd.exe 23980:python.exe]"}
+{"when":1727347855,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 2 to 1 ... map[23980:python.exe]"}
+{"when":1727347861,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727347861,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727347862,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727347910,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727347910,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.133s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727347910,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.012s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14084/7832)"}
+{"when":1727347910,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.014s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727347910,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.155s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727347911,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.442s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727347911,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727347911,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727347911,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[12640:python.exe]"}
+{"when":1727347921,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727347921,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727347922,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727353292,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727353292,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.128s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727353292,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.011s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/20324)"}
+{"when":1727353292,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.014s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727353293,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.330s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727353293,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.504s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727353293,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727353293,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727353294,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[10760:python.exe]"}
+{"when":1727353306,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727353306,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727353307,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727354011,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727354012,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.123s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727354012,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.012s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/25720)"}
+{"when":1727354012,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.015s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727354012,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.163s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727354012,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.436s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727354012,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727354012,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727354012,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[23452:python.exe]"}
+{"when":1727354024,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727354024,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727354025,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727355162,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727355162,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.124s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727355162,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.012s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/6136)"}
+{"when":1727355162,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.013s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727355163,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.921s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727355163,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.434s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727355163,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727355163,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727355163,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[13560:python.exe]"}
+{"when":1727355177,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 0 ... map[]"}
+{"when":1727355177,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727355177,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727355178,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727356068,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727356068,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.123s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727356068,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.013s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/5572)"}
+{"when":1727356068,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.014s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727356069,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.257s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727356069,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.446s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727356069,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727356069,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727356069,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[29024:python.exe]"}
+{"when":1727356074,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 2 ... map[23672:cmd.exe 29024:python.exe]"}
+{"when":1727356074,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 2 to 1 ... map[29024:python.exe]"}
+{"when":1727356083,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727356083,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727356084,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727357122,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727357123,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.147s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727357123,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.013s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/26372)"}
+{"when":1727357123,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.014s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727357123,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.156s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727357123,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.435s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727357123,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727357123,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727357123,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[19056:python.exe]"}
+{"when":1727357128,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 2 ... map[15424:cmd.exe 19056:python.exe]"}
+{"when":1727357129,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 2 to 1 ... map[19056:python.exe]"}
+{"when":1727357135,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was FAILURE, reason: exit status 1","comment":"rcc point of view"}
+{"when":1727357135,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727357136,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727357187,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727357187,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.119s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727357187,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.014s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/14612)"}
+{"when":1727357187,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.016s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727357188,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.173s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727357188,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.461s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727357188,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727357188,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727357188,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[9260:python.exe]"}
+{"when":1727357199,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727357199,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727357200,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727357727,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727357727,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.121s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727357727,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.014s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/15288)"}
+{"when":1727357727,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.014s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727357727,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.153s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727357727,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.424s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727357727,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727357727,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727357727,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[9016:python.exe]"}
+{"when":1727357738,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727357738,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 0 ... map[]"}
+{"when":1727357738,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727357738,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727358371,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727358371,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.130s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727358371,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.014s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/18864)"}
+{"when":1727358371,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.015s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727358371,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.155s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727358371,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.420s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727358371,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727358371,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727358372,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[19324:python.exe]"}
+{"when":1727358376,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 2 ... map[19324:python.exe 26420:cmd.exe]"}
+{"when":1727358377,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 2 to 1 ... map[19324:python.exe]"}
+{"when":1727358383,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 2 ... map[6652:cmd.exe 19324:python.exe]"}
+{"when":1727358383,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 2 to 1 ... map[19324:python.exe]"}
+{"when":1727358384,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727358384,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727358385,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727358932,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727358932,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.130s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727358932,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.014s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/22108)"}
+{"when":1727358932,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.015s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727358932,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.153s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727358933,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.435s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727358933,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727358933,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727358933,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[19980:python.exe]"}
+{"when":1727358944,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727358944,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 0 ... map[]"}
+{"when":1727358944,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727358945,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727359106,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727359106,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.140s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727359106,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.015s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/21764)"}
+{"when":1727359106,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.017s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727359107,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.231s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727359107,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.455s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727359107,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727359107,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727359107,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[30280:python.exe]"}
+{"when":1727359118,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727359118,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 1 to 0 ... map[]"}
+{"when":1727359118,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727359118,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727360244,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727360244,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.126s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727360244,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.016s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/26316)"}
+{"when":1727360244,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.019s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727360244,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.163s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727360245,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.457s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727360245,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727360245,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727360245,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[15860:python.exe]"}
+{"when":1727360257,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727360257,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727360258,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727360601,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727360601,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.137s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727360601,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.016s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/13348)"}
+{"when":1727360601,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.019s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727360601,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.193s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727360601,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.443s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727360601,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727360601,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727360601,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[26156:python.exe]"}
+{"when":1727360602,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was FAILURE, reason: exit status 1","comment":"rcc point of view"}
+{"when":1727360602,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727360603,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727360699,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727360700,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.157s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727360700,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.017s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/29376)"}
+{"when":1727360700,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.017s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727360700,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.175s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727360700,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.439s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727360700,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727360700,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727360700,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[16584:python.exe]"}
+{"when":1727360701,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was FAILURE, reason: exit status 1","comment":"rcc point of view"}
+{"when":1727360701,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727360702,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727360959,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727360959,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.136s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727360959,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.016s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/15640)"}
+{"when":1727360959,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.017s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727360959,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.192s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727360959,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.462s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727360959,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727360959,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727360959,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[19780:python.exe]"}
+{"when":1727360974,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727360974,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727360975,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727361298,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727361298,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.135s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727361298,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.017s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/16724)"}
+{"when":1727361298,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.019s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727361298,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.173s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727361299,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.443s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727361299,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727361299,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727361299,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[19040:python.exe]"}
+{"when":1727361310,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727361310,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727361311,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}
+{"when":1727362070,"controller":"rcc.user","event":"start task","detail":"name= from=robot.yaml","comment":"at task environment setup"}
+{"when":1727362070,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 00/15 v17.28.4 0.126s Context: \"Daniel Pozzoli\" \u003cDANIELPC\\danie@DanielPC\u003e [windows_amd64/Microsoft Windows [Versione 10.0.22631.4169]]."}
+{"when":1727362071,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 01/15 v17.28.4 0.017s Fresh [shared mode] holotree environment 1f4d969d-794b-4954-0eb0-7b2d00592a78. (parent/pid: 14528/6716)"}
+{"when":1727362071,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 02/15 v17.28.4 0.018s Holotree blueprint is \"739f11a5c371169d\" [windows_amd64 with 11 workers on 12 CPUs from \"conda.yaml\"]."}
+{"when":1727362071,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 14/15 v17.28.4 0.171s Restore space from library [with 11 workers on 12 CPUs; with compression: true]."}
+{"when":1727362071,"controller":"rcc.user","event":"environment","detail":"build","comment":"Progress: 15/15 v17.28.4 0.430s Fresh holotree done [with 11 workers on 12 CPUs]."}
+{"when":1727362071,"controller":"rcc.user","event":"start","detail":"robot","comment":"started"}
+{"when":1727362071,"controller":"rcc.user","event":"run","detail":"robot","comment":"task run"}
+{"when":1727362071,"controller":"rcc.user","event":"processes","detail":"updated","comment":"count from 0 to 1 ... map[27120:python.exe]"}
+{"when":1727362084,"controller":"rcc.user","event":"robot exit","detail":"From rcc \"v17.28.4\" (controller: \"user\") point of view, \"actual main robot run\" was SUCCESS.","comment":"rcc point of view"}
+{"when":1727362084,"controller":"rcc.user","event":"processes","detail":"final","comment":"count: 0"}
+{"when":1727362085,"controller":"rcc.user","event":"stop","detail":"robot","comment":"done"}

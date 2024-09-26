@@ -1,0 +1,10 @@
+robot:
+  name: "Stock Bot"
+  description: "A bot that checks stock data and performs sentiment analysis."
+
+tasks:
+  RunStockBot:
+    shell: python main.py  # Runs the Python script
+
+condaConfigFile: conda.yaml  # Links to the conda.yaml for environment setup
+artifactsDir: artifacts  # Directory where RCC will store output artifacts

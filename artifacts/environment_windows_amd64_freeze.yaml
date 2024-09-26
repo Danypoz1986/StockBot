@@ -1,0 +1,52 @@
+channels:
+- defaults
+dependencies:
+- ca-certificates=2024.7.2
+- libffi=3.4.4
+- openssl=3.0.15
+- pip=24.2
+- python=3.8.19
+- setuptools=75.1.0
+- sqlite=3.45.3
+- vc=14.40
+- vs2015_runtime=14.40.33807
+- wheel=0.44.0
+- pip:
+  - backports.tarfile==1.2.0
+  - beautifulsoup4==4.12.3
+  - certifi==2024.8.30
+  - charset-normalizer==3.3.2
+  - click==8.1.7
+  - colorama==0.4.6
+  - frozendict==2.4.4
+  - html5lib==1.1
+  - idna==3.10
+  - importlib_metadata==8.5.0
+  - importlib_resources==6.4.5
+  - jaraco.classes==3.4.0
+  - jaraco.context==6.0.1
+  - jaraco.functools==4.0.2
+  - joblib==1.4.2
+  - keyring==25.4.1
+  - lxml==5.3.0
+  - more-itertools==10.5.0
+  - multitasking==0.0.11
+  - nltk==3.9.1
+  - numpy==1.24.4
+  - pandas==2.0.3
+  - peewee==3.17.6
+  - platformdirs==4.3.6
+  - python-dateutil==2.9.0.post0
+  - pytz==2024.2
+  - pywin32-ctypes==0.2.3
+  - regex==2024.9.11
+  - requests==2.32.3
+  - six==1.16.0
+  - soupsieve==2.6
+  - textblob==0.18.0.post0
+  - tqdm==4.66.5
+  - tzdata==2024.2
+  - urllib3==2.2.3
+  - webencodings==0.5.1
+  - yfinance==0.2.43
+  - zipp==3.20.2
