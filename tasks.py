@@ -8,7 +8,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
 import os
-from datetime import datetime, timedelta
 import sys
 
 # Optional UTF-8 reconfiguration
@@ -62,7 +61,7 @@ def check_sentiment():
 
 def send_email(subject, body):
     sender_email = "daniel.pozzoli86@gmail.com"
-    receiver_email = "dap00004@laurea.fi"
+    receiver_emails = ["dap00004@laurea.fi", "janne.juote@student.laurea.fi", "kati.tuukkanen@student.laurea.fi"]
 
     # Access the Vault
     vault = Vault()
@@ -77,15 +76,15 @@ def send_email(subject, body):
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
-    msg['To'] = receiver_email
+    msg['To'] = ", ".join(receiver_emails)
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(sender_email, gmail_password)  # Use the retrieved password
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-        print("Sähköposti lähetetty onnistuneesti!")
+            server.sendmail(sender_email, receiver_emails, msg.as_string())
+        print("Sähköpostit lähetetty onnistuneesti!")
     except smtplib.SMTPAuthenticationError as e:
         print(f"SMTP-todennusvirhe: {e}")
     except Exception as e:
@@ -126,6 +125,7 @@ def compare_predictions(prev_predictions, companies):
             comparison_results += f"{company_name}: Ennuste oli väärä (Ennustettu {prediction}, mutta hinta {'nousi' if current_close > prev_close else 'laski'}).\n"
 
     return comparison_results
+
 @task 
 
 def main():
