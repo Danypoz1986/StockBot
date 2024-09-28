@@ -1,0 +1,3 @@
+[console_scripts]
+windows-record=RPA.scripts.record:main
+

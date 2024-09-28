@@ -1,0 +1,2042 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keywordspec name="RPA.Windows" type="LIBRARY" format="REST" scope="GLOBAL" generated="2024-09-17T13:59:07+00:00" specversion="5" source="./RPA/Windows/__init__.py" lineno="24">
+<version/>
+<doc>The `Windows` is a library that can be used for Windows desktop automation.
+
+Library is included in the **rpaframework** package by default, but as shown in the
+below example library can be also installed separately without **rpaframework**.
+
+.. code-block:: yaml
+
+    channels:
+      - conda-forge
+    dependencies:
+      - python=3.9.13
+      - pip=22.1.2
+      - pip:
+        - rpaframework-windows==7.0.2 # standalone Windows library (`rpaframework` includes this library)
+
+
+**About terminology**
+
+**ControlType** is a value referred to by locator keys `type:` or `control`. Represents type of application
+object, which can be e.g. `Window`, `Button` or `ListItem`.
+
+**Element** is an entity of an application structure (e.g. certain button in a window), which can be
+identified by a locator. (also referred as **Control**)
+
+**WindowsElement** is an library container object for the ``Element``. All the keywords returning elements, will in
+fact return ``WindowsElement``s. The ones accepting ``locator`` or ``root_element`` as arguments, will accept
+``WindowsElement`` as an argument value. (``locator`` accepts strings as well)
+
+Structure of the ``WindowsElement``
+
+.. code-block:: python
+
+    class WindowsElement:
+        item: Control        # ``item`` contains object instance of the element
+        locator: str         # ``locator`` that found this element
+        name: str            # ``Name`` attribute of the element
+        automation_id: str   # ``AutomationId`` attribute of the element
+        control_type: str    # ``ControlTypeName`` attribute of the element
+        class_name: str      # ``ClassName`` attribute of the element
+        left: int            # element's rectangle left coordinate
+        right: int           # element's rectangle right coordinate
+        top: int             # element's rectangle top coordinate
+        bottom: int          # element's rectangle bottom coordinate
+        width: int           # element's rectangle horizontal width
+        height: int          # element's rectangle vertical height
+        xcenter: int         # element's rectangle center point x coordinate
+        ycenter: int         # element's rectangle center point y coordinate
+
+Example of the ``WindowsElement`` usage
+
+.. code-block:: robotframework
+
+    ${rows}=    Get Elements    class:DataGridRow
+    # ${rows} is a list of ``WindowsElement``s
+    FOR    ${row}    IN    @{rows}
+        Log To Console   ${row.name}                # access ``WindowsElement``
+        Log To Console   ${row.item.AutomationId}   # access ``WindowsElement.item`` directly
+        Log To Console   ${row.item.Name}           # same as ``${row.name}``
+    END
+
+
+**Locators**
+
+Locators are based on different strategies that can used identify Control object.
+
+Available strategies that can be used for the locators:
+
+=============== =======================
+Key             Maps to search property
+=============== =======================
+name            Name
+class           ClassName
+type            ControlType
+control         ControlType
+id              AutomationId
+automationid    AutomationId
+regex           RegexName
+subname         SubName
+index           foundIndex (int)
+offset          offset coordinates (x (int), y (int)) from control center
+executable      target window by its executable name
+handle          target window handle (int)
+desktop         *SPECIAL* target desktop, no value for the key e.g. `desktop:desktop and name:Calculator`
+process         *NOT YET SUPPORTED* target window by its executable's process id
+depth           searchDepth (int) for finding Control (default 8)
+path            target element by its index-based path traversal (e.g. `path:2|3|8|2`)
+=============== =======================
+
+**About root element on locators**
+
+Locators work on currently active `root element`. At the start `root element` is the whole
+desktop. There are different ways on changing this root element.
+
+Keyword ``Control Window`` is the most common method of setting certain system window
+as a root element for further actions using locators. In the absence of a provided
+`root_element` parameter, here's how you can control the default root element
+resolving:
+
+  - ``Set Anchor``: Sets the active anchor window from which the search begins.
+  - ``Control Window``: Controls and focuses on a window and marks it as the current
+    active window, from which all the subsequent searches will start from in the
+    absence of a set anchor.
+  - If there's no set anchor nor active window, then the last resort will be the
+    "Desktop" element itself.
+
+Locators themselves support cascading syntax (denoted by character `&gt;` in the locator string),
+which can denote root element in "parent (root) &amp; child" terms.
+
+For example.
+
+.. code-block:: robotframework
+
+    Click  id:controls &gt; id:activate
+
+On the above example the left side of the `&gt;` character, `id:controls`, represents the root element
+(can be called as "parent element" in this case). Right side of the locator string, `id:activate`,
+represents "child" element and it will be searched under the "parent element".
+
+This way element search is more efficient, because search are restricted to certain section of element
+tree which can be quite huge especially on the desktop level and in certain applications.
+
+Keyword examples:
+
+.. code-block:: robotframework
+
+    Control Window    name:Calculator
+    Control Window    Calculator  # will execute search by 'name:Calculator'
+    Control Window    executable:Spotify.exe
+
+some example locators, `and` can be omitted ie. space ` ` between locator keys means the same thing as `and`:
+
+.. code-block:: bash
+
+    id:clearButton
+    type:Group and name:"Number pad" &gt; type:Button and index:4
+    type:Group and name:"Number pad" &gt; control:Button index:5
+    id:Units1 &gt; name:${unit}
+    class:Button offset:370,0
+
+**About locator restrictions**
+
+Visual locators are not supported in this library and they can't be used in the same chain with these
+Windows locators. Visual locators are supported by the `RPA.Desktop` library. Locator chaining (image and
+Windows locators) support will be added in the future.
+
+Locator syntax does not yet support OR operation (only AND operations).
+
+**About search depth**
+
+The library does element search depth by default to the level of 8. This means that locator will look into
+8 levels of elements under element tree of the root element. This can lead into situation where element
+can't be found. To fix this it is recommended to set root element which can be found within 8 levels OR
+defining `depth` in the locator string to a bigger value, e.g. `id:deeplyNestedButton depth:16`. Useful
+keywords for setting root element are ``Control Window``, ``Set Anchor`` and ``Get Element``.
+
+**About the path strategy**
+
+When automation IDs and names aren't enough (or not reliable), then you can fallback
+to the positions of elements in a tree. This can be achieved using the `path:`
+strategy to specify a list of element positions which indicates how to traverse the
+tree from parent to child beginning with the resolved root.
+
+Example: `Calculator &gt; path:2|3|2|8|2` - this locator looks for the "Calculator"
+window, then it looks for the 2nd direct child and then it looks for the 3rd one of
+the previous child and so on until it consumes the path completely. (indexes start
+with `1`)
+
+An alternative way to get the whole tree to explore it yourself would be to use the
+``Print Tree`` keyword.
+
+**Keyboard and mouse**
+
+Keys for the keyboard actions are given using ``uiautomation`` specification.
+
+Special keys which are given within `{}` syntax.
+
+=================== =======================
+Key                 Maps to action
+=================== =======================
+LBUTTON             Left mouse button
+RBUTTON             Right mouse button
+CANCEL              Control-break processing
+MBUTTON             Middle mouse button (three-button mouse)
+XBUTTON1            X1 mouse button
+XBUTTON2            X2 mouse button
+BACK                BACKSPACE key
+TAB                 TAB key
+CLEAR               CLEAR key
+RETURN              ENTER key
+ENTER               ENTER key
+SHIFT               SHIFT key
+CTRL                CTRL key
+CONTROL             CTRL key
+ALT                 ALT key
+PAUSE               PAUSE key
+CAPITAL             CAPS LOCK key
+KANA                IME Kana mode
+HANGUEL             IME Hanguel mode (maintained for compatibility; use VK_HANGUL)
+HANGUL              IME Hangul mode
+JUNJA               IME Junja mode
+FINAL               IME final mode
+HANJA               IME Hanja mode
+KANJI               IME Kanji mode
+ESC                 ESC key
+ESCAPE              ESC key
+CONVERT             IME convert
+NONCONVERT          IME nonconvert
+ACCEPT              IME accept
+MODECHANGE          IME mode change request
+SPACE               SPACEBAR
+PRIOR               PAGE UP key
+PAGEUP              PAGE UP key
+NEXT                PAGE DOWN key
+PAGEDOWN            PAGE DOWN key
+END                 END key
+HOME                HOME key
+LEFT                LEFT ARROW key
+UP                  UP ARROW key
+RIGHT               RIGHT ARROW key
+DOWN                DOWN ARROW key
+SELECT              SELECT key
+PRINT               PRINT key
+EXECUTE             EXECUTE key
+SNAPSHOT            PRINT SCREEN key
+PRINTSCREEN         PRINT SCREEN key
+INSERT              INS key
+INS                 INS key
+DELETE              DEL key
+DEL                 DEL key
+HELP                HELP key
+WIN                 Left Windows key (Natural keyboard)
+LWIN                Left Windows key (Natural keyboard)
+RWIN                Right Windows key (Natural keyboard)
+APPS                Applications key (Natural keyboard)
+SLEEP               Computer Sleep key
+NUMPAD0             Numeric keypad 0 key
+NUMPAD1             Numeric keypad 1 key
+NUMPAD2             Numeric keypad 2 key
+NUMPAD3             Numeric keypad 3 key
+NUMPAD4             Numeric keypad 4 key
+NUMPAD5             Numeric keypad 5 key
+NUMPAD6             Numeric keypad 6 key
+NUMPAD7             Numeric keypad 7 key
+NUMPAD8             Numeric keypad 8 key
+NUMPAD9             Numeric keypad 9 key
+MULTIPLY            Multiply key
+ADD                 Add key
+SEPARATOR           Separator key
+SUBTRACT            Subtract key
+DECIMAL             Decimal key
+DIVIDE              Divide key
+F1                  F1 key
+F2                  F2 key
+F3                  F3 key
+F4                  F4 key
+F5                  F5 key
+F6                  F6 key
+F7                  F7 key
+F8                  F8 key
+F9                  F9 key
+F10                 F10 key
+F11                 F11 key
+F12                 F12 key
+F13                 F13 key
+F14                 F14 key
+F15                 F15 key
+F16                 F16 key
+F17                 F17 key
+F18                 F18 key
+F19                 F19 key
+F20                 F20 key
+F21                 F21 key
+F22                 F22 key
+F23                 F23 key
+F24                 F24 key
+NUMLOCK             NUM LOCK key
+SCROLL              SCROLL LOCK key
+LSHIFT              Left SHIFT key
+RSHIFT              Right SHIFT key
+LCONTROL            Left CONTROL key
+LCTRL               Left CONTROL key
+RCONTROL            Right CONTROL key
+RCTRL               Right CONTROL key
+LALT                Left MENU key
+RALT                Right MENU key
+BROWSER_BACK        Browser Back key
+BROWSER_FORWARD     Browser Forward key
+BROWSER_REFRESH     Browser Refresh key
+BROWSER_STOP        Browser Stop key
+BROWSER_SEARCH      Browser Search key
+BROWSER_FAVORITES   Browser Favorites key
+BROWSER_HOME        Browser Start and Home key
+VOLUME_MUTE         Volume Mute key
+VOLUME_DOWN         Volume Down key
+VOLUME_UP           Volume Up key
+MEDIA_NEXT_TRACK    Next Track key
+MEDIA_PREV_TRACK    Previous Track key
+MEDIA_STOP          Stop Media key
+MEDIA_PLAY_PAUSE    Play/Pause Media key
+LAUNCH_MAIL         Start Mail key
+LAUNCH_MEDIA_SELECT Select Media key
+LAUNCH_APP1         Start Application 1 key
+LAUNCH_APP2         Start Application 2 key
+OEM_1               Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the ';:' key
+OEM_PLUS            For any country/region, the '+' key
+OEM_COMMA           For any country/region, the ',' key
+OEM_MINUS           For any country/region, the '-' key
+OEM_PERIOD          For any country/region, the '.' key
+OEM_2               Used for miscellaneous characters; it can vary by keyboard.
+OEM_3               Used for miscellaneous characters; it can vary by keyboard.
+OEM_4               Used for miscellaneous characters; it can vary by keyboard.
+OEM_5               Used for miscellaneous characters; it can vary by keyboard.
+OEM_6               Used for miscellaneous characters; it can vary by keyboard.
+OEM_7               Used for miscellaneous characters; it can vary by keyboard.
+OEM_8               Used for miscellaneous characters; it can vary by keyboard.
+OEM_102             Either the angle bracket key or the backslash key on the RT 102-key keyboard
+PROCESSKEY          IME PROCESS key
+PACKET              Used to pass Unicode characters as if they were keystrokes. The VK_PACKET key is the low word of a 32-bit Virtual Key value used for non-keyboard input methods. For more information, see Remark in KEYBDINPUT, SendInput, WM_KEYDOWN, and WM_KeyUp
+ATTN                Attn key
+CRSEL               CrSel key
+EXSEL               ExSel key
+EREOF               Erase EOF key
+PLAY                Play key
+ZOOM                Zoom key
+NONAME              Reserved
+PA1                 PA1 key
+OEM_CLEAR           Clear key
+=================== =======================
+
+Examples.
+
+.. code-block:: python
+
+    lib = Windows()
+    # {Ctrl}, {Delete} ... are special keys' name in SpecialKeyNames.
+    lib.send_keys('{Ctrl}a{Delete}{Ctrl}v{Ctrl}s{Ctrl}{Shift}s{Win}e{PageDown}') #press Ctrl+a, Delete, Ctrl+v, Ctrl+s, Ctrl+Shift+s, Win+e, PageDown
+    lib.send_keys('{Ctrl}(AB)({Shift}(123))') #press Ctrl+A+B, type '(', press Shift+1+2+3, type ')', if '()' follows a hold key, hold key won't release util ')'
+    lib.send_keys('{Ctrl}{a 3}') #press Ctrl+a at the same time, release Ctrl+a, then type 'a' 2 times
+    lib.send_keys('{a 3}{B 5}') #type 'a' 3 times, type 'B' 5 times
+    lib.send_keys('{{}Hello{}}abc {a}{b}{c} test{} 3}{!}{a} (){(}{)}') #type: '{Hello}abc abc test}}}!a ()()'
+    lib.send_keys('0123456789{Enter}')
+    lib.send_keys('ABCDEFGHIJKLMNOPQRSTUVWXYZ{Enter}')
+    lib.send_keys('abcdefghijklmnopqrstuvwxyz{Enter}')
+    lib.send_keys('`~!@#$%^&amp;*()-_=+{Enter}')
+    lib.send_keys('[]{{}{}}\|;:'",&lt;.&gt;/?{Enter}')
+
+Using access key of the element (element property -&gt; AccessKey 'alt+s').
+The `(+s)` means that previous special key is kept down until closing parenthesis is reached.
+
+On the below example this means that 'ALT' key is pressed down, then '+' and 's' keys are pressed
+down before they are all released up.
+
+.. code-block:: robotframework
+
+    Send Keys   keys={Alt}(+s)
+
+Mouse clicks can be executed with keywords specific for a type of a click, e.g. ``Click`` (normal click),
+``Double Click`` and ``Right Click``.
+
+**How to inspect**
+
+Most common, and recommended by Microsoft, inspector tool for Windows is `Accessibility Insights`_ that
+can be installed separately. Other options are tools `Inspect Object`_  and `UI Automation Verify`_, which
+can be accessed by installing Windows SDK.
+
+A more programmatic approach is to run ``Print Tree    log_as_warnings=${True}``
+keyword and then observe in the logs the found elements structure starting from
+Desktop (or the currently set anchor / active window) as root. (refer to keyword's
+`documentation &lt;https://robocorp.com/docs/libraries/rpa-framework/rpa-windows/keywords#print-tree&gt;`_
+for more details)
+
+.. _Accessibility Insights: https://accessibilityinsights.io/
+.. _Inspect Object: https://docs.microsoft.com/en-us/windows/win32/winauto/inspect-objects
+.. _UI Automation Verify: https://docs.microsoft.com/en-us/windows/win32/winauto/ui-automation-verify
+
+**Recording**
+
+The package provides some rudimentary inspecting and recording via the
+``windows-record`` script, which can be started through the command line (in an
+environment containing the ``rpaframework-windows`` installation).
+
+Recording inspects elements on **mouse click** and can be stopped by pressing the
+**ESC** key. Expected console output:
+
+.. code-block:: winbatch
+
+    C:\Users\User\robots\&gt; windows-record -v  # or &gt; python -m RPA.Windows -v
+    Mouse recording started. Use ESC to stop recording.
+
+    --------------------------------------------------------------------------------
+    Copy-paste the code below into your `*** Tasks ***` or `*** Keywords ***`
+    --------------------------------------------------------------------------------
+
+    Control Window    name:Calculator and type:WindowControl and class:ApplicationFrameWindow  # handle:9569486
+    Click    name:Calculator and id:TitleBar and type:WindowControl and class:ApplicationFrameTitleBarWindow and path:1
+    Click    name:"Display is 0" and id:CalculatorResults and type:TextControl and path:2|3|2|2
+    Click    name:Eight and id:num8Button and type:ButtonControl and class:Button and path:2|3|2|8|9
+    Click    name:Nine and id:num9Button and type:ButtonControl and class:Button and path:2|3|2|8|10
+    Click    name:Clear and id:clearButton and type:ButtonControl and class:Button and path:2|3|2|5|3
+
+    --------------------------------------------------------------------------------
+
+Check our Portal example in order to learn more abot the `path:` strategy in
+locators and how to record elements displaying their paths:
+https://robocorp.com/portal/robot/robocorp/example-windows-element-path
+
+Video recorded demo on how to run the recorder script from VSCode:
+https://www.loom.com/share/2807372359f34b9cbe1bc2df9194ec68
+
+**Caveats**
+
+- Make sure your *display scaling* is set to *100%*, otherwise you might encounter
+  issues when clicking or interacting with elements. (since offsets and coordinates
+  get distorted)
+- Disturbing the automation (like interacting with your mouse/keyboard) or having
+  other apps obstructing the process interacting with your app of interest will
+  most probably affect the expected behaviour. In order to avoid this, try
+  controlling the app's main window right before sending clicks or keys. And keep
+  targeting elements through **string locators**, as interacting with Windows
+  element objects previously retrieved will not work as expected in a future
+  altered state of the app (changes under the element structure).
+
+**Example: Robot Framework**
+
+The library must be imported first.
+
+.. code-block:: robotframework
+
+    *** Settings ***
+    Library    RPA.Windows
+
+Windows Calculator automation task
+
+.. code-block:: robotframework
+
+    *** Tasks ***
+    Do some calculations
+        [Setup]  Windows Run   calc.exe
+
+        Control Window    name:Calculator
+        Click    id:clearButton
+        Send Keys   keys=96+4=
+        ${result} =    Get Attribute    id:CalculatorResults    Name
+        Log To Console    ${result}
+
+        @{buttons} =  Get Elements  type:Group and name:"Number pad" &gt; type:Button
+        FOR  ${button}  IN  @{buttons}
+            Log To Console   ${button}
+        END
+
+        [Teardown]   Close Current Window
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+
+    library = Windows()
+
+    def test_do_some_calculations():
+        library.windows_run("calc.exe")
+        try:
+            library.control_window("name:Calculator")
+            library.click("id:clearButton")
+            library.send_keys(keys="96+4=")
+            result = library.get_attribute("id:CalculatorResults", "Name")
+            print(result)
+            buttons = library.get_elements(
+                'type:Group and name:"Number pad" &gt; type:Button'
+            )
+            for button in buttons:
+                print(button)
+        finally:
+            library.close_current_window()</doc>
+<tags>
+<tag>action</tag>
+<tag>keyboard</tag>
+<tag>mouse</tag>
+<tag>window</tag>
+</tags>
+<inits>
+<init name="__init__" lineno="508">
+<arguments repr="locators_path: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locators_path: str | None = None">
+<name>locators_path</name>
+<type name="Union" union="true">str | None<type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Initialize self.  See help(type(self)) for accurate signature.</doc>
+<shortdoc>Initialize self.  See help(type(self)) for accurate signature.</shortdoc>
+</init>
+</inits>
+<keywords>
+<kw name="Clear Anchor" source="./RPA/Windows/keywords/elements.py" lineno="47">
+<arguments repr="">
+</arguments>
+<doc>Clears control anchor set by ``Set Anchor``
+
+This means that all following keywords accessing elements
+will use active window or desktop as root element.</doc>
+<shortdoc>Clears control anchor set by ``Set Anchor``</shortdoc>
+</kw>
+<kw name="Click" source="./RPA/Windows/keywords/action.py" lineno="28">
+<arguments repr="locator: WindowsElement | str, wait_time: float | None = None, timeout: float | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float | None = None">
+<name>wait_time</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Mouse click on element matching given locator.
+
+Exception ``ActionNotPossible`` is raised if element does not
+allow Click action.
+
+:param locator: String locator or element object.
+:param wait_time: time to wait after click, default is a
+ library `wait_time`, see keyword ``Set Wait Time``
+:param timeout: float value in seconds, see keyword
+ ``Set Global Timeout``
+:return: WindowsElement object
+
+Example:
+
+.. code-block:: robotframework
+
+    Click  id:button1
+    Click  id:button2 offset:10,10
+    ${element}=  Click  name:SendButton  wait_time=5.0</doc>
+<shortdoc>Mouse click on element matching given locator.</shortdoc>
+<tags>
+<tag>action</tag>
+<tag>mouse</tag>
+</tags>
+</kw>
+<kw name="Close Current Window" source="./RPA/Windows/keywords/window.py" lineno="317">
+<arguments repr="">
+</arguments>
+<doc>Closes current active window or logs a warning message.
+
+:return: True if close was successful, False if not
+
+Example:
+
+.. code-block:: robotframework
+
+    ${status}=  Close Current Window</doc>
+<shortdoc>Closes current active window or logs a warning message.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Close Window" source="./RPA/Windows/keywords/window.py" lineno="349">
+<arguments repr="locator: WindowsElement | str | None = None, timeout: float | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Closes identified windows or logs the problems.
+
+:param locator: String locator or `Control` element.
+:param timeout: float value in seconds, see keyword
+ ``Set Global Timeout``
+:return: How many windows were found and closed.
+
+Example:
+
+.. code-block:: robotframework
+
+    ${closed_count} =     Close Window    Calculator</doc>
+<shortdoc>Closes identified windows or logs the problems.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Control Child Window" source="./RPA/Windows/keywords/window.py" lineno="93">
+<arguments repr="locator: WindowsElement | str | None = None, foreground: bool = True, wait_time: float | None = None, timeout: float | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="foreground: bool = True">
+<name>foreground</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float | None = None">
+<name>wait_time</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Get control of child window of the active window
+by locator.
+
+:param locator: string locator or Control element
+:param foreground: True to bring window to foreground
+:param wait_time: time to wait after activeting a window
+:param timeout: float value in seconds, see keyword
+ ``Set Global Timeout``
+:return: WindowsElement object
+
+Example:
+
+.. code-block:: robotframework
+
+    Control Window   subname:"Sage 50" type:Window
+    # actions on the main application window
+    # ...
+    # get control of child window of Sage application
+    Control Child Window   subname:"Test Company" depth:1</doc>
+<shortdoc>Get control of child window of the active window by locator.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Control Window" source="./RPA/Windows/keywords/window.py" lineno="36">
+<arguments repr="locator: WindowsElement | str | None = None, foreground: bool = True, wait_time: float | None = None, timeout: float | None = None, main: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="foreground: bool = True">
+<name>foreground</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float | None = None">
+<name>wait_time</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="main: bool = True">
+<name>main</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Controls the window defined by the locator.
+
+This means that this window is used as a root element
+for all the following keywords using locators.
+
+Returns `WindowsElement`.
+
+:param locator: string locator or Control element
+:param foreground: True to bring window to foreground
+:param wait_time: time to wait after activating a window
+:param timeout: float value in seconds, see keyword
+    ``Set Global Timeout``
+:param main: on `True` (default) starts the search from desktop level, on
+    `False` it will continue to search for child elements given the set anchor
+    or current active window
+:return: `WindowsElement` object
+
+Example:
+
+.. code-block:: robotframework
+
+    Control Window   Calculator
+    Control Window   name:Calculator
+    Control Window   subname:Notepad
+    Control Window   regex:.*Notepad
+    ${window}=  Control Window   executable:Spotify.exe</doc>
+<shortdoc>Controls the window defined by the locator.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Disable Process Listing" source="./RPA/Windows/keywords/window.py" lineno="410">
+<arguments repr="">
+</arguments>
+<doc>Disables process iteration in `List Windows` keyword.</doc>
+<shortdoc>Disables process iteration in `List Windows` keyword.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Double Click" source="./RPA/Windows/keywords/action.py" lineno="57">
+<arguments repr="locator: WindowsElement | str, wait_time: float | None = None, timeout: float | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float | None = None">
+<name>wait_time</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Double mouse click on element matching given locator.
+
+Exception ``ActionNotPossible`` is raised if element does not
+allow Click action.
+
+:param locator: String locator or element object.
+:param wait_time: time to wait after click, default is a
+ library `wait_time`, see keyword ``Set Wait Time``
+:param timeout: float value in seconds, see keyword
+ ``Set Global Timeout``
+:return: WindowsElement object
+
+Example:
+
+.. code-block:: robotframework
+
+    ${element}=  Double Click  name:ResetButton</doc>
+<shortdoc>Double mouse click on element matching given locator.</shortdoc>
+<tags>
+<tag>action</tag>
+<tag>mouse</tag>
+</tags>
+</kw>
+<kw name="Drag And Drop" source="./RPA/Windows/keywords/action.py" lineno="666">
+<arguments repr="source_element: WindowsElement | str, target_element: WindowsElement | str, speed: float | None = 1.0, copy: bool | None = False, wait_time: float | None = 1.0">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="source_element: WindowsElement | str">
+<name>source_element</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="target_element: WindowsElement | str">
+<name>target_element</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="speed: float | None = 1.0">
+<name>speed</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>1.0</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="copy: bool | None = False">
+<name>copy</name>
+<type name="Union" union="true">bool | None<type name="bool" typedoc="boolean">bool</type><type name="None" typedoc="None">None</type></type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float | None = 1.0">
+<name>wait_time</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>1.0</default>
+</arg>
+</arguments>
+<doc>Drag and drop the source element into target element.
+
+:param source: source element for the operation
+:param target: target element for the operation
+:param speed: adjust speed of operation, bigger value means more speed
+:param copy: on True does copy drag and drop, defaults to move
+:param wait_time: time to wait after drop, default 1.0 seconds
+
+Example:
+
+.. code-block:: robotframework
+
+    # copying a file, report.html, from source (File Explorer) window
+    # into a target (File Explorer) Window
+    # locator
+    Drag And Drop
+    ...    name:C:\temp type:Windows &gt; name:report.html type:ListItem
+    ...    name:%{USERPROFILE}\Documents\artifacts type:Windows &gt; name:"Items View"
+    ...    copy=True
+
+Example:
+
+.. code-block:: robotframework
+
+    # moving *.txt files into subfolder within one (File Explorer) window
+    ${source_dir}=    Set Variable    %{USERPROFILE}\Documents\test
+    Control Window    name:${source_dir}
+    ${files}=    Find Files    ${source_dir}${/}*.txt
+    # first copy files to folder2
+    FOR    ${file}    IN    @{files}
+        Drag And Drop    name:${file.name}    name:folder2 type:ListItem    copy=True
+    END
+    # second move files to folder1
+    FOR    ${file}    IN    @{files}
+        Drag And Drop    name:${file.name}    name:folder1 type:ListItem
+    END</doc>
+<shortdoc>Drag and drop the source element into target element.</shortdoc>
+<tags>
+<tag>action</tag>
+<tag>mouse</tag>
+</tags>
+</kw>
+<kw name="Enable Process Listing" source="./RPA/Windows/keywords/window.py" lineno="405">
+<arguments repr="">
+</arguments>
+<doc>Enables process iteration in `List Windows` keyword.</doc>
+<shortdoc>Enables process iteration in `List Windows` keyword.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Foreground Window" source="./RPA/Windows/keywords/window.py" lineno="135">
+<arguments repr="locator: WindowsElement | str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Bring the current active window or the window defined
+by the locator to the foreground.
+
+:param locator: string locator or Control element
+:return: WindowsElement object
+
+Example:
+
+.. code-block:: robotframework
+
+    ${window}=  Foreground Window   Calculator</doc>
+<shortdoc>Bring the current active window or the window defined by the locator to the foreground.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Get Attribute" source="./RPA/Windows/keywords/elements.py" lineno="126">
+<arguments repr="locator: WindowsElement | str, attribute: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="attribute: str">
+<name>attribute</name>
+<type name="str" typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Get attribute value of the element defined by the locator.
+
+:param locator: string locator or Control element
+:param attribute: name of the attribute to get
+:return: value of attribute
+
+Example:
+
+.. code-block:: robotframework
+
+    ${id}=   Get Attribute  type:Edit name:firstname   AutomationId</doc>
+<shortdoc>Get attribute value of the element defined by the locator.</shortdoc>
+</kw>
+<kw name="Get Element" source="./RPA/Windows/keywords/locators.py" lineno="28">
+<arguments repr="locator: WindowsElement | str | None = None, search_depth: int = 8, root_element: WindowsElement | None = None, timeout: float | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="search_depth: int = 8">
+<name>search_depth</name>
+<type name="int" typedoc="integer">int</type>
+<default>8</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="root_element: WindowsElement | None = None">
+<name>root_element</name>
+<type name="Union" union="true">WindowsElement | None<type name="WindowsElement">WindowsElement</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Get a Control Windows element defined by the locator.
+
+The returned element can be used instead of a locator string for other keywords
+accepting the `locator` parameter.
+Keyword ``Get Attribute`` can be used to read element attribute values.
+
+If `locator` is `None`, then the returned element will be in this priority:
+
+    1. `root_element` if provided.
+    2. Anchor element if that has been previously set with ``Set Anchor``.
+    3. Current active window if that has been set with ``Control Window``.
+    4. Last resort is the "Desktop" element.
+
+:param locator: Locator as a string or as an element object.
+:param search_depth: How deep the element search will traverse. (default 8)
+:param root_element: Will be used as search root element object if provided.
+:param timeout: After how many seconds (float) to give up on search. (see
+    keyword ``Set Global Timeout``)
+:returns: The identified `WindowsElement` object.
+
+**Example: Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Tasks ***
+    Set Text Into Notepad Window
+        Windows Run    Notepad
+        Control Window      subname:Notepad
+        ${element} =    Get Element    regex:"Text (E|e)ditor"
+        Set Value    ${element}    note to myself
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+
+    lib = Windows()
+    lib.windows_run("calc.exe")
+    one_btn = lib.get_element("Calculator &gt; path:2|3|2|8|2")
+    lib.close_window("Calculator")</doc>
+<shortdoc>Get a Control Windows element defined by the locator.</shortdoc>
+</kw>
+<kw name="Get Elements" source="./RPA/Windows/keywords/locators.py" lineno="166">
+<arguments repr="locator: WindowsElement | str | None = None, search_depth: int = 8, root_element: WindowsElement | None = None, timeout: float | None = None, siblings_only: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="search_depth: int = 8">
+<name>search_depth</name>
+<type name="int" typedoc="integer">int</type>
+<default>8</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="root_element: WindowsElement | None = None">
+<name>root_element</name>
+<type name="Union" union="true">WindowsElement | None<type name="WindowsElement">WindowsElement</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="siblings_only: bool = True">
+<name>siblings_only</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Get a list of elements matching the locator.
+
+By default, only the siblings (similar elements on the same level) are taken
+into account. In order to search globally, turn `siblings_only` off, but be
+aware that this will take more time to process.
+
+Note that if the syntax ``parent_locator &gt; child_locator`` is used
+in the locator, it is assumed that ``parent_locator`` returns a
+singular element - i.e. if the locator ``parent_locator`` returns multiple
+elements, only the first result is used for further processing, even if
+`siblings_only` is off.
+
+For more details on the rest of parameters, take a look at the ``Get Element``
+keyword.
+
+:param locator: Locator as a string or as an element object.
+:param search_depth: How deep the element search will traverse. (default 8)
+:param root_element: Will be used as search root element object if provided.
+:param timeout: After how many seconds (float) to give up on search. (see
+    keyword ``Set Global Timeout``)
+:param siblings_only: Filter for elements on the same level as the initially
+    found one. Turn it off for a global search. (`True` by default)
+:returns: A list of matching `WindowsElement` objects.
+
+**Example: Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Tasks ***
+    Get Headers On Same Level
+        Set Anchor      id:DataGrid
+        @{elements} =   Get Elements    type:HeaderItem
+        FOR    ${element}    IN    @{elements}
+            Log To Console    ${element.name}
+        END
+
+    Get All Calculator Buttons Matching Expression
+        Windows Run    Calc
+        Control Window    subname:Calc
+        @{buttons} =    Get Elements    class:Button regex:.*o.*
+        ...     siblings_only=${False}
+        Log List    ${buttons}
+        ${length} =     Get Length      ${buttons}
+        Log To Console      Number of buttons: ${length}</doc>
+<shortdoc>Get a list of elements matching the locator.</shortdoc>
+</kw>
+<kw name="Get Os Version" source="./RPA/Windows/keywords/window.py" lineno="392">
+<arguments repr="">
+</arguments>
+<doc>Returns the current Windows major version as string.
+
+Example:
+
+.. code-block:: robotframework
+
+    ${ver} =     Get OS Version
+    Log     ${ver}  # 10</doc>
+<shortdoc>Returns the current Windows major version as string.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Get Text" source="./RPA/Windows/keywords/action.py" lineno="301">
+<arguments repr="locator: WindowsElement | str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+</arguments>
+<doc>Get text from Control element defined by the locator.
+
+Exception ``ActionNotPossible`` is raised if element does not
+allow GetWindowText action.
+
+:param locator: String locator or element object.
+:return: value of WindowText attribute of an element
+
+Example:
+
+.. code-block:: robotframework
+
+    ${date} =  Get Text   type:Edit name:"Date of birth"</doc>
+<shortdoc>Get text from Control element defined by the locator.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="Get Value" source="./RPA/Windows/keywords/action.py" lineno="334">
+<arguments repr="locator: WindowsElement | str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+</arguments>
+<doc>Get the value of the element defined by the provided `locator`.
+
+The ``ActionNotPossible`` exception is raised if the identified element doesn't
+support value retrieval.
+
+:param locator: String locator or element object.
+:returns: Optionally the value of the identified element.
+
+**Example: Robot Framework**
+
+.. code-block:: robotframework
+
+    ${value} =   Get Value   type:DataItem name:column1
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+
+    lib_win = Windows()
+    text = lib_win.get_value("Rich Text Window")
+    print(text)</doc>
+<shortdoc>Get the value of the element defined by the provided `locator`.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="List Attributes" source="./RPA/Windows/keywords/elements.py" lineno="153">
+<arguments repr="locator: WindowsElement | str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+</arguments>
+<doc>List all element attributes.
+
+:param locator: string locator or Control element
+:return: list of element attributes (strings)</doc>
+<shortdoc>List all element attributes.</shortdoc>
+</kw>
+<kw name="List Windows" source="./RPA/Windows/keywords/window.py" lineno="229">
+<arguments repr="icons: bool = False, icon_save_directory: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="icons: bool = False">
+<name>icons</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="icon_save_directory: str | None = None">
+<name>icon_save_directory</name>
+<type name="Union" union="true">str | None<type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>List all window element on the system.
+
+:param icons: on True dictionary will contain Base64
+ string of the icon, default False
+:param icon_save_directory: if set will save retrieved icons
+ into this filepath, by default icon files are not saved
+:return: list of dictionaries containing information
+ about Window elements
+
+Example:
+
+.. code-block:: robotframework
+
+    ${windows}=  List Windows
+    FOR  ${window}  IN  @{windows}
+        Log  Window title:${window}[title]
+        Log  Window process name:${window}[name]
+        Log  Window process id:${window}[pid]
+        Log  Window process handle:${window}[handle]
+    END</doc>
+<shortdoc>List all window element on the system.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Maximize Window" source="./RPA/Windows/keywords/window.py" lineno="195">
+<arguments repr="locator: WindowsElement | str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Maximize the current active window or the window defined
+by the locator.
+
+:param locator: string locator or element
+:return: `WindowsElement` object
+
+Example:
+
+.. code-block:: robotframework
+
+    ${window} =    Maximize Window  # Current active window
+    Maximize Window    executable:Spotify.exe</doc>
+<shortdoc>Maximize the current active window or the window defined by the locator.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Middle Click" source="./RPA/Windows/keywords/action.py" lineno="111">
+<arguments repr="locator: WindowsElement | str, wait_time: float | None = None, timeout: float | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float | None = None">
+<name>wait_time</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Right mouse click on element matching given locator.
+
+Exception ``ActionNotPossible`` is raised if element does not
+allow Click action.
+
+:param locator: String locator or element object.
+:param wait_time: time to wait after click, default is a
+ library `wait_time`, see keyword ``Set Wait Time``
+:param timeout: float value in seconds, see keyword
+ ``Set Global Timeout``
+:return: WindowsElement object
+
+Example:
+
+.. code-block:: robotframework
+
+    ${element}=  Middle Click  name:button2</doc>
+<shortdoc>Right mouse click on element matching given locator.</shortdoc>
+<tags>
+<tag>action</tag>
+<tag>mouse</tag>
+</tags>
+</kw>
+<kw name="Minimize Window" source="./RPA/Windows/keywords/window.py" lineno="178">
+<arguments repr="locator: WindowsElement | str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Minimize the current active window or the window defined
+by the locator.
+
+:param locator: string locator or element
+:return: `WindowsElement` object
+
+Example:
+
+.. code-block:: robotframework
+
+    ${window} =    Minimize Window  # Current active window
+    Minimize Window    executable:Spotify.exe</doc>
+<shortdoc>Minimize the current active window or the window defined by the locator.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Print Tree" source="./RPA/Windows/keywords/elements.py" lineno="56">
+<arguments repr="locator: WindowsElement | str | None = None, max_depth: int = 8, capture_image_folder: str | None = None, log_as_warnings: bool = False, return_structure: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="max_depth: int = 8">
+<name>max_depth</name>
+<type name="int" typedoc="integer">int</type>
+<default>8</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="capture_image_folder: str | None = None">
+<name>capture_image_folder</name>
+<type name="Union" union="true">str | None<type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="log_as_warnings: bool = False">
+<name>log_as_warnings</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="return_structure: bool = False">
+<name>return_structure</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Print a tree of control elements.
+
+A Windows application structure can contain multilevel element structure.
+Understanding this structure is crucial for creating locators. (based on
+controls' details and their parent-child relationship)
+
+This keyword can be used to output logs of application's element structure,
+starting with the element defined by the provided `locator` as root. Switch
+the `return_structure` parameter to `True` to get a tree of elements returned
+as well. (off by default to save memory)
+
+- The printed structure displays a tree prefixed with "depth" - "position" so
+  you know how deep (0 means root) in the tree you are and on what position
+  (1-indexed) the child you're looking for is.
+- The returned structure is a dictionary with all the children flattened per
+  depth level. Additionally, these `WindowsElement` objects contain a relevant
+  locator composed of "root &gt; path" which will help to identify the element in
+  the tree.
+
+Portal example:
+https://robocorp.com/portal/robot/robocorp/example-windows-element-path
+
+:param locator: The root of the tree to output.
+:param max_depth: Maximum depth level. (defaults to 8)
+:param capture_image_folder: If set, controls' images will be captured in this
+    path.
+:param log_as_warnings: Enables highlighted logs (at the beginning of the log
+    file as warnings) and increases visibility in the output console.
+:param return_structure: A flattened tree with all the elements collated by
+    level will be returned if this is enabled.
+:returns: Optionally a dictionary of children per depth level when
+    `return_structure` is enabled.
+
+**Example: Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Tasks ***
+    Display Element Structure
+        ${tree} =   Print Tree      Calculator &gt; path:2|3|2|8
+        ...     return_structure=${True}
+        Log To Console      ${tree}
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+
+    lib = Windows()
+    tree = lib.print_tree("Calculator &gt; path:2|3|2|8", return_structure=True)
+    print(tree)</doc>
+<shortdoc>Print a tree of control elements.</shortdoc>
+</kw>
+<kw name="Restore Window" source="./RPA/Windows/keywords/window.py" lineno="212">
+<arguments repr="locator: WindowsElement | str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Window restore the current active window or the window
+defined by the locator.
+
+:param locator: string locator or element
+:return: `WindowsElement` object
+
+Example:
+
+.. code-block:: robotframework
+
+    ${window} =    Restore Window  # Current active window
+    Restore Window    executable:Spotify.exe</doc>
+<shortdoc>Window restore the current active window or the window defined by the locator.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Right Click" source="./RPA/Windows/keywords/action.py" lineno="84">
+<arguments repr="locator: WindowsElement | str, wait_time: float | None = None, timeout: float | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float | None = None">
+<name>wait_time</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Right mouse click on element matching given locator.
+
+Exception ``ActionNotPossible`` is raised if element does not
+allow Click action.
+
+:param locator: String locator or element object.
+:param wait_time: time to wait after click, default is a
+ library `wait_time`, see keyword ``Set Wait Time``
+:param timeout: float value in seconds, see keyword
+ ``Set Global Timeout``
+:return: WindowsElement object
+
+Example:
+
+.. code-block:: robotframework
+
+    ${element}=  Right Click  name:MenuButton</doc>
+<shortdoc>Right mouse click on element matching given locator.</shortdoc>
+<tags>
+<tag>action</tag>
+<tag>mouse</tag>
+</tags>
+</kw>
+<kw name="Screenshot" source="./RPA/Windows/keywords/action.py" lineno="591">
+<arguments repr="locator: WindowsElement | str, filename: str | Path">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="filename: str | Path">
+<name>filename</name>
+<type name="Union" union="true">str | Path<type name="str" typedoc="string">str</type><type name="Path" typedoc="Path">Path</type></type>
+</arg>
+</arguments>
+<doc>Take a screenshot of the element defined by the locator.
+
+An `ActionNotPossible` exception is raised if the element doesn't allow being
+captured.
+
+:param locator: String locator or element object.
+:param filename: Image file name/path. (can be absolute/relative)
+:raises ActionNotPossible: When the element can't be captured.
+:returns: Absolute file path of the taken screenshot image.
+
+**Example: Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Tasks ***
+    Take Screenshots
+        Screenshot    desktop    desktop.png
+        Screenshot    subname:Notepad    ${OUTPUT_DIR}${/}notepad.png
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+    lib = Windows()
+
+    def take_screenshots():
+        lib.screenshot("desktop", "desktop.png")
+        lib.screenshot("subname:Notepad", "output/notepad.png")</doc>
+<shortdoc>Take a screenshot of the element defined by the locator.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="Select" source="./RPA/Windows/keywords/action.py" lineno="203">
+<arguments repr="locator: WindowsElement | str, value: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="value: str">
+<name>value</name>
+<type name="str" typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Select a value on the passed element if such action is supported.
+
+The ``ActionNotPossible`` exception is raised when the element does not allow
+the `Select` action. This is usually used with combo box elements.
+
+:param locator: String locator or element object.
+:param value: String value to select on Control element
+:returns: The controlled Windows element.
+
+**Example: Robot Framework**
+
+    *** Settings ***
+    Library     RPA.Windows
+
+    *** Tasks ***
+    Set Notepad Size
+        Select    id:FontSizeComboBox    22
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+
+    lib = Windows()
+
+    def set_notepad_size():
+        lib.select("id:FontSizeComboBox", "22")</doc>
+<shortdoc>Select a value on the passed element if such action is supported.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="Send Keys" source="./RPA/Windows/keywords/action.py" lineno="249">
+<arguments repr="locator: WindowsElement | str | None = None, keys: str | None = None, interval: float = 0.01, wait_time: float | None = None, send_enter: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="keys: str | None = None">
+<name>keys</name>
+<type name="Union" union="true">str | None<type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="interval: float = 0.01">
+<name>interval</name>
+<type name="float" typedoc="float">float</type>
+<default>0.01</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float | None = None">
+<name>wait_time</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="send_enter: bool = False">
+<name>send_enter</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Send keys to desktop, current window or to Control element
+defined by given locator.
+
+If ``locator`` is `None` then keys are sent to desktop.
+
+Exception ``ActionNotPossible`` is raised if element does not
+allow SendKeys action.
+
+:param locator: Optional string locator or element object.
+:param keys: The keys to send.
+:param interval: Time between each sent key. (defaults to 0.01 seconds)
+:param wait_time: Time to wait after sending all the keys. (defaults to
+    library's set value, see keyword ``Set Wait Time``)
+:param send_enter: If `True` then the {Enter} key is pressed at the end of the
+    sent keys.
+:returns: The element identified through `locator`.
+
+Example:
+
+.. code-block:: robotframework
+
+    Send Keys  desktop   {Ctrl}{F4}
+    Send Keys  keys={Ctrl}{F4}   # locator will be NONE, keys sent to desktop
+    Send Keys  id:input5  username   send_enter=${True}
+    ${element}=   Get Element   id:pass
+    Send Keys  ${element}  password   send_enter=${True}</doc>
+<shortdoc>Send keys to desktop, current window or to Control element defined by given locator.</shortdoc>
+<tags>
+<tag>action</tag>
+<tag>keyboard</tag>
+</tags>
+</kw>
+<kw name="Set Anchor" source="./RPA/Windows/keywords/elements.py" lineno="14">
+<arguments repr="locator: WindowsElement | str, timeout: float | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float | None = None">
+<name>timeout</name>
+<type name="Union" union="true">float | None<type name="float" typedoc="float">float</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Set anchor to an element specified by the locator.
+
+All following keywords using locators will use this element
+as a root element. Specific use case could be setting
+anchor to TableControl element and then getting column data
+belonging to that TableControl element.
+
+To release anchor call ``Clear Anchor`` keyword.
+
+:param locator: string locator or Control element
+:param timeout: timeout in seconds for element lookup (default 10.0)
+
+Example:
+
+.. code-block:: robotframework
+
+    Set Anchor  type:Table name:Orders depth:16
+    FOR  ${row}  IN RANGE  200
+        ${number}=  Get Value   name:number row ${row}
+        Exit For Loop If   $number == ${EMPTY}
+        ${sum}=  Get Value   name:sum row ${row}
+        Log   Order number:${number} has sum:{sum}
+    END
+    Clear Anchor</doc>
+<shortdoc>Set anchor to an element specified by the locator.</shortdoc>
+</kw>
+<kw name="Set Focus" source="./RPA/Windows/keywords/action.py" lineno="647">
+<arguments repr="locator: WindowsElement | str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="locator: WindowsElement | str">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type></type>
+</arg>
+</arguments>
+<doc>Set view focus to the element defined by the locator.
+
+:param locator: String locator or element object.
+
+Example:
+
+.. code-block:: robotframework
+
+    Set Focus  name:Buy type:Button</doc>
+<shortdoc>Set view focus to the element defined by the locator.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="Set Global Timeout" source="./RPA/Windows/keywords/action.py" lineno="625">
+<arguments repr="timeout: float">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="timeout: float">
+<name>timeout</name>
+<type name="float" typedoc="float">float</type>
+</arg>
+</arguments>
+<doc>Set global timeout for element search. Applies also
+to ``Control Window`` keyword.
+
+By default, the library has a timeout of 10 seconds.
+
+:param timeout: float value in seconds
+:return: previous timeout value
+
+Example:
+
+.. code-block:: robotframework
+
+    ${old_timeout}=  Set Global Timeout  20
+    ${old_timeout}=  Set Global Timeout  9.5</doc>
+<shortdoc>Set global timeout for element search. Applies also to ``Control Window`` keyword.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="Set Mouse Movement" source="./RPA/Windows/keywords/action.py" lineno="730">
+<arguments repr="simulate: bool">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="simulate: bool">
+<name>simulate</name>
+<type name="bool" typedoc="boolean">bool</type>
+</arg>
+</arguments>
+<doc>Enable or disable mouse movement simulation during clicks and other actions.
+
+Returns the previous set value as `True`/`False`.
+
+:param simulate: Decide whether to simulate the move. (OFF by default)
+:returns: Previous state.
+
+**Example: Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Tasks ***
+    Disable Mouse Move
+        ${previous} =   Set Mouse Movement      ${True}
+        Log To Console   Previous mouse simulation: ${previous} (now enabled)
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+
+    lib_win = Windows()
+    previous = lib_win.set_mouse_movement(True)
+    print(f"Previous mouse simulation: {previous} (now enabled)")</doc>
+<shortdoc>Enable or disable mouse movement simulation during clicks and other actions.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="Set Value" source="./RPA/Windows/keywords/action.py" lineno="436">
+<arguments repr="locator: WindowsElement | str | None = None, value: str | None = None, append: bool = False, enter: bool = False, newline: bool = False, send_keys_fallback: bool = True, validator: Callable | None = &lt;function set_value_validator at 0x000001598F910EE0&gt;">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="locator: WindowsElement | str | None = None">
+<name>locator</name>
+<type name="Union" union="true">WindowsElement | str | None<type name="WindowsElement">WindowsElement</type><type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="value: str | None = None">
+<name>value</name>
+<type name="Union" union="true">str | None<type name="str" typedoc="string">str</type><type name="None" typedoc="None">None</type></type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="append: bool = False">
+<name>append</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="enter: bool = False">
+<name>enter</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="newline: bool = False">
+<name>newline</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="send_keys_fallback: bool = True">
+<name>send_keys_fallback</name>
+<type name="bool" typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="validator: Callable | None = &lt;function set_value_validator at 0x000001598F910EE0&gt;">
+<name>validator</name>
+<type name="Union" union="true">Callable | None<type name="Callable">Callable</type><type name="None" typedoc="None">None</type></type>
+<default>&lt;function set_value_validator at 0x000001598F910EE0&gt;</default>
+</arg>
+</arguments>
+<doc>Set value of the element defined by the locator.
+
+*Note:* An anchor will work only on element structures where you can
+rely on the stability of that root/child element tree, as remaining the same.
+Usually these kind of structures are tables. (but not restricted to)
+
+*Note:* It is important to set ``append=${True}`` if you want to keep the
+current text in the element. Other option is to read the current text into a
+variable, then modify that value as you wish and pass it to the ``Set Value``
+keyword for a complete text replacement. (without setting the `append` flag)
+
+The following exceptions may be raised:
+
+    - ``ActionNotPossible`` if the element does not allow the `SetValue` action
+      to be run on it nor having ``send_keys_fallback=${True}``.
+    - ``ValueError`` if the new value to be set can't be set correctly.
+
+:param locator: String locator or element object.
+:param value: String value to be set.
+:param append: `False` for setting the value, `True` for appending it. (OFF by
+    default)
+:param enter: Set it to `True` to press the *Enter* key at the end of the
+    input. (nothing is pressed by default)
+:param newline: Set it to `True` to add a new line at the end of the value. (no
+    EOL included by default; this won't work with `send_keys_fallback` enabled)
+:param send_keys_fallback: Tries to set the value by sending it through keys
+    if the main way of setting it fails. (enabled by default)
+:param validator: Function receiving two parameters post-setting, the expected
+    and the current value, which returns `True` if the two values match. (by
+    default, the keyword will raise if the values are different, set this to
+    `None` to disable validation or pass your custom function instead)
+:returns: The element object identified through the passed `locator`.
+
+**Example: Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Tasks ***
+    Set Values In Notepad
+        Set Value   type:DataItem name:column1   ab c  # Set value to "ab c"
+        # Press ENTER after setting the value.
+        Set Value    type:Edit name:"File name:"    console.txt   enter=${True}
+
+        # Add newline (manually) at the end of the string. (Notepad example)
+        Set Value    name:"Text Editor"  abc\n
+        # Add newline with parameter.
+        Set Value    name:"Text Editor"  abc   newline=${True}
+
+        # Clear Notepad window and start appending text.
+        Set Anchor  name:"Text Editor"
+        # All the following keyword calls will use the anchor element as a
+        #  starting point, UNLESS they specify a locator explicitly or
+        #  `Clear Anchor` is used.
+        ${time} =    Get Time
+        # Clears with `append=${False}`. (default)
+        Set Value    value=The time now is ${time}
+        # Append text and add a newline at the end.
+        Set Value    value= and it's the task run time.   append=${True}
+        ...    newline=${True}
+        # Continue appending and ensure a new line at the end by pressing
+        #  the Enter key this time.
+        Set Value    value=But this will appear on the 2nd line now.
+        ...    append=${True}   enter=${True}   validator=${None}
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+
+    lib_win = Windows()
+    locator = "Document - WordPad &gt; Rich Text Window"
+    elem = lib_win.set_value(locator, value="My text", send_keys_fallback=True)
+    text = lib_win.get_value(elem)
+    print(text)</doc>
+<shortdoc>Set value of the element defined by the locator.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="Set Wait Time" source="./RPA/Windows/keywords/action.py" lineno="565">
+<arguments repr="wait_time: float">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="wait_time: float">
+<name>wait_time</name>
+<type name="float" typedoc="float">float</type>
+</arg>
+</arguments>
+<doc>Set library wait time for action keywords.
+
+The wait_time is spent after each keyword performing
+mouse or keyboard action.
+
+Library default wait_time is `0.5`
+
+Returns value of the previous wait_time value.
+
+:param wait_time: float value (in seconds), e.g. `0.1`
+:return: previous wait value
+
+Example:
+
+.. code-block:: robotframework
+
+    ${old_wait_time}=  Set Wait Time  0.2</doc>
+<shortdoc>Set library wait time for action keywords.</shortdoc>
+<tags>
+<tag>action</tag>
+</tags>
+</kw>
+<kw name="Windows Run" source="./RPA/Windows/keywords/window.py" lineno="258">
+<arguments repr="text: str, wait_time: float = 3.0">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="text: str">
+<name>text</name>
+<type name="str" typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float = 3.0">
+<name>wait_time</name>
+<type name="float" typedoc="float">float</type>
+<default>3.0</default>
+</arg>
+</arguments>
+<doc>Use Windows Run window to launch an application.
+
+Activated by pressing `Win + R`. Then the app name is typed in and finally the
+"Enter" key is pressed.
+
+:param text: Text to enter into the Run input field. (e.g. `Notepad`)
+:param wait_time: Time to sleep after the searched app is executed. (3s by
+    default)
+
+**Example: Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Tasks ***
+    Run Notepad
+        Windows Run   notepad
+
+**Example: Python**
+
+.. code-block:: python
+
+    from RPA.Windows import Windows
+    lib = Windows()
+
+    def run_notepad():
+        lib.windows_run("notepad")</doc>
+<shortdoc>Use Windows Run window to launch an application.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+<kw name="Windows Search" source="./RPA/Windows/keywords/window.py" lineno="294">
+<arguments repr="text: str, wait_time: float = 3.0">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="text: str">
+<name>text</name>
+<type name="str" typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="wait_time: float = 3.0">
+<name>wait_time</name>
+<type name="float" typedoc="float">float</type>
+<default>3.0</default>
+</arg>
+</arguments>
+<doc>Use Windows search window to launch application.
+
+Activated by pressing `win + s`.
+
+:param text: text to enter into search input field
+:param wait_time: sleep time after search has been entered (default 3.0 seconds)
+
+Example:
+
+.. code-block:: robotframework
+
+    Windows Search   Outlook</doc>
+<shortdoc>Use Windows search window to launch application.</shortdoc>
+<tags>
+<tag>window</tag>
+</tags>
+</kw>
+</keywords>
+<datatypes>
+</datatypes>
+<typedocs>
+<type name="boolean" type="Standard">
+<doc>Strings ``TRUE``, ``YES``, ``ON`` and ``1`` are converted to Boolean ``True``,
+the empty string as well as strings ``FALSE``, ``NO``, ``OFF`` and ``0``
+are converted to Boolean ``False``, and the string ``NONE`` is converted
+to the Python ``None`` object. Other strings and other accepted values are
+passed as-is, allowing keywords to handle them specially if
+needed. All string comparisons are case-insensitive.
+
+Examples: ``TRUE`` (converted to ``True``), ``off`` (converted to ``False``),
+``example`` (used as-is)
+</doc>
+<accepts>
+<type>string</type>
+<type>integer</type>
+<type>float</type>
+<type>None</type>
+</accepts>
+<usages>
+<usage>Control Child Window</usage>
+<usage>Control Window</usage>
+<usage>Drag And Drop</usage>
+<usage>Get Elements</usage>
+<usage>List Windows</usage>
+<usage>Print Tree</usage>
+<usage>Send Keys</usage>
+<usage>Set Mouse Movement</usage>
+<usage>Set Value</usage>
+</usages>
+</type>
+<type name="float" type="Standard">
+<doc>Conversion is done using Python's
+[https://docs.python.org/library/functions.html#float|float] built-in function.
+
+Starting from RF 4.1, spaces and underscores can be used as visual separators
+for digit grouping purposes.
+
+Examples: ``3.14``, ``2.9979e8``, ``10 000.000 01``
+</doc>
+<accepts>
+<type>string</type>
+<type>Real</type>
+</accepts>
+<usages>
+<usage>Click</usage>
+<usage>Close Window</usage>
+<usage>Control Child Window</usage>
+<usage>Control Window</usage>
+<usage>Double Click</usage>
+<usage>Drag And Drop</usage>
+<usage>Get Element</usage>
+<usage>Get Elements</usage>
+<usage>Middle Click</usage>
+<usage>Right Click</usage>
+<usage>Send Keys</usage>
+<usage>Set Anchor</usage>
+<usage>Set Global Timeout</usage>
+<usage>Set Wait Time</usage>
+<usage>Windows Run</usage>
+<usage>Windows Search</usage>
+</usages>
+</type>
+<type name="integer" type="Standard">
+<doc>Conversion is done using Python's [https://docs.python.org/library/functions.html#int|int]
+built-in function. Floating point
+numbers are accepted only if they can be represented as integers exactly.
+For example, ``1.0`` is accepted and ``1.1`` is not.
+
+Starting from RF 4.1, it is possible to use hexadecimal, octal and binary
+numbers by prefixing values with ``0x``, ``0o`` and ``0b``, respectively.
+
+Starting from RF 4.1, spaces and underscores can be used as visual separators
+for digit grouping purposes.
+
+Examples: ``42``, ``-1``, ``0b1010``, ``10 000 000``, ``0xBAD_C0FFEE``
+</doc>
+<accepts>
+<type>string</type>
+<type>float</type>
+</accepts>
+<usages>
+<usage>Get Element</usage>
+<usage>Get Elements</usage>
+<usage>Print Tree</usage>
+</usages>
+</type>
+<type name="None" type="Standard">
+<doc>String ``NONE`` (case-insensitive) is converted to Python ``None`` object.
+Other values cause an error.
+</doc>
+<accepts>
+<type>string</type>
+</accepts>
+<usages>
+<usage>__init__</usage>
+<usage>Click</usage>
+<usage>Close Window</usage>
+<usage>Control Child Window</usage>
+<usage>Control Window</usage>
+<usage>Double Click</usage>
+<usage>Drag And Drop</usage>
+<usage>Foreground Window</usage>
+<usage>Get Element</usage>
+<usage>Get Elements</usage>
+<usage>List Windows</usage>
+<usage>Maximize Window</usage>
+<usage>Middle Click</usage>
+<usage>Minimize Window</usage>
+<usage>Print Tree</usage>
+<usage>Restore Window</usage>
+<usage>Right Click</usage>
+<usage>Send Keys</usage>
+<usage>Set Anchor</usage>
+<usage>Set Value</usage>
+</usages>
+</type>
+<type name="Path" type="Standard">
+<doc>Strings are converted [https://docs.python.org/library/pathlib.html|Path] objects.
+On Windows ``/`` is converted to ``\`` automatically.
+
+Examples: ``/tmp/absolute/path``, ``relative/path/to/file.ext``, ``name.txt``
+</doc>
+<accepts>
+<type>string</type>
+<type>PurePath</type>
+</accepts>
+<usages>
+<usage>Screenshot</usage>
+</usages>
+</type>
+<type name="string" type="Standard">
+<doc>All arguments are converted to Unicode strings.</doc>
+<accepts>
+<type>Any</type>
+</accepts>
+<usages>
+<usage>__init__</usage>
+<usage>Click</usage>
+<usage>Close Window</usage>
+<usage>Control Child Window</usage>
+<usage>Control Window</usage>
+<usage>Double Click</usage>
+<usage>Drag And Drop</usage>
+<usage>Foreground Window</usage>
+<usage>Get Attribute</usage>
+<usage>Get Element</usage>
+<usage>Get Elements</usage>
+<usage>Get Text</usage>
+<usage>Get Value</usage>
+<usage>List Attributes</usage>
+<usage>List Windows</usage>
+<usage>Maximize Window</usage>
+<usage>Middle Click</usage>
+<usage>Minimize Window</usage>
+<usage>Print Tree</usage>
+<usage>Restore Window</usage>
+<usage>Right Click</usage>
+<usage>Screenshot</usage>
+<usage>Select</usage>
+<usage>Send Keys</usage>
+<usage>Set Anchor</usage>
+<usage>Set Focus</usage>
+<usage>Set Value</usage>
+<usage>Windows Run</usage>
+<usage>Windows Search</usage>
+</usages>
+</type>
+</typedocs>
+</keywordspec>

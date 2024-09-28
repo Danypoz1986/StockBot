@@ -1,25 +1,27 @@
 import yfinance as yf
+from robocorp import task
+from RPA.Robocorp.Vault import Vault
 import requests
 from textblob import TextBlob
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import keyring
 import json
 import os
 from datetime import datetime, timedelta
-import sys 
-sys.stdout.reconfigure(encoding='utf-8')
+import sys
 
-# File to store previous predictions and stock data
+# Optional UTF-8 reconfiguration
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except AttributeError:
+    pass
+
 PREDICTIONS_FILE = "predictions.json"
 
-# Fetch stock data with proper alignment
 def get_stock_data(ticker, name, period="1mo"):
     stock = yf.Ticker(ticker)
     stock_data = stock.history(period=period)[['Open', 'High', 'Low', 'Close']].tail(5)
-    
-    # Custom formatting for aligned output with more space between Date and Open
     stock_data_str = f"\n\n{name}:\n\n"
     stock_data_str += f"{'Date':<25} {'Open':<10} {'High':<10} {'Low':<10} {'Close':<10}\n"
     
@@ -27,54 +29,50 @@ def get_stock_data(ticker, name, period="1mo"):
         date_str = index.strftime('%Y-%m-%d')
         stock_data_str += f"{date_str:<25} {row['Open']:<10.2f} {row['High']:<10.2f} {row['Low']:<10.2f} {row['Close']:<10.2f}\n"
 
-    return stock_data_str, stock_data.tail(1)['Close'].values[0]  # Return the formatted string and latest close price
+    return stock_data_str, stock_data.tail(1)['Close'].values[0]
 
-# Perform sentiment analysis on news articles
 def check_sentiment():
-    news_api_key = "619e6a7b71e64a37bbc4583d5b061eda"  # Replace with your API key
+    news_api_key = os.getenv("NEWS_API_KEY")  # Use environment variable
+    if not news_api_key:
+        print("Virhe: API-avain ei löytynyt.")
+        return None
+
     response = requests.get(f"https://newsapi.org/v2/everything?q=stock&apiKey={news_api_key}")
-
     if response.status_code != 200:
-        print(f"Error: Failed to fetch news, status code {response.status_code}")
+        print(f"Virhe: Uutisten haku epäonnistui, tilakoodi {response.status_code}")
         return None
 
-    try:
-        articles = response.json().get('articles', [])
-        if not articles:
-            print("No articles found in the API response.")
-            return None
-
-        # Perform sentiment analysis on the articles
-        sentiments = [TextBlob(article['description']).sentiment.polarity for article in articles if article['description']]
-        avg_sentiment = sum(sentiments) / len(sentiments) if sentiments else 0
-
-        # Convert the sentiment score to a word (positive, negative, neutral)
-        if avg_sentiment > 0.1:
-            sentiment_word = "positiivinen"
-            suggestion = "Osta"
-        elif avg_sentiment < -0.1:
-            sentiment_word = "negatiivinen"
-            suggestion = "Myy"
-        else:
-            sentiment_word = "neutraali"
-            suggestion = "Pidä"
-
-        return avg_sentiment, sentiment_word, suggestion
-
-    except KeyError as e:
-        print(f"KeyError: {e} - The 'articles' key is missing from the API response.")
+    articles = response.json().get('articles', [])
+    if not articles:
+        print("Artikkeleita ei löytynyt API-vastauksesta.")
         return None
 
-# Send an email with stock data and sentiment results
+    sentiments = [TextBlob(article['description']).sentiment.polarity for article in articles if article['description']]
+    if not sentiments:
+        print("Artikkeleista ei löytynyt kelvollisia tunteita.")
+        return 0, "neutraali", "Pidä"  # Return neutral sentiment and suggestion
+
+    avg_sentiment = sum(sentiments) / len(sentiments)
+    if avg_sentiment > 0.1:
+        return avg_sentiment, "positiivinen", "Osta"
+    elif avg_sentiment < -0.1:
+        return avg_sentiment, "negatiivinen", "Myy"
+    else:
+        return avg_sentiment, "neutraali", "Pidä"
+
 def send_email(subject, body):
     sender_email = "daniel.pozzoli86@gmail.com"
     receiver_email = "dap00004@laurea.fi"
 
-    # Retrieve the password from keyring
-    password = keyring.get_password("gmail", sender_email)
-    
-    if password is None:
-        print("Error: Could not retrieve password from keyring.")
+    # Access the Vault
+    vault = Vault()
+
+    # Get the Gmail password from Vault
+    secrets = vault.get_secret("GMAIL_pw")
+    gmail_password = secrets.get("GMAIL_PASSWORD")  # Ensure the key name matches the Vault
+
+    if not gmail_password:
+        print("Virhe: Salasanaa ei saatu haettua holvista.")
         return
 
     msg = MIMEMultipart()
@@ -85,13 +83,14 @@ def send_email(subject, body):
 
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.login(sender_email, password)
+            server.login(sender_email, gmail_password)  # Use the retrieved password
             server.sendmail(sender_email, receiver_email, msg.as_string())
         print("Sähköposti lähetetty onnistuneesti!")
     except smtplib.SMTPAuthenticationError as e:
-        print(f"SMTP Authentication Error: {e}")
+        print(f"SMTP-todennusvirhe: {e}")
     except Exception as e:
         print(f"Sähköpostin lähetys epäonnistui: {e}")
+
 
 # Save the current predictions to a file
 def save_predictions(predictions):
@@ -127,8 +126,8 @@ def compare_predictions(prev_predictions, companies):
             comparison_results += f"{company_name}: Ennuste oli väärä (Ennustettu {prediction}, mutta hinta {'nousi' if current_close > prev_close else 'laski'}).\n"
 
     return comparison_results
-
-if __name__ == "__main__":
+@task
+def main():
     # List of company tickers and full names
     companies = {
         "NOKIA.HE": "Nokia Oyj",
@@ -149,16 +148,20 @@ if __name__ == "__main__":
     # Fetch and format stock data for each company and save predictions
     stock_data_str = ""
     predictions = {}
+    sentiment_word = "unknown"
+    suggestion = "unknown"
 
     for ticker, name in companies.items():
         stock_str, latest_close = get_stock_data(ticker, name)
         stock_data_str += stock_str
-        
+
         sentiment = check_sentiment()
         if sentiment:
             _, sentiment_word, suggestion = sentiment
             predictions[ticker] = {"suggestion": suggestion, "close": latest_close}
-    
+        else:
+            print(f"Sentimenttianalyysi epäonnistui {name}, ohitetaan...")
+
     # Save current predictions
     save_predictions(predictions)
 
@@ -173,3 +176,6 @@ if __name__ == "__main__":
 
     # Send the email
     send_email(email_subject, email_body)
+
+
+main()
