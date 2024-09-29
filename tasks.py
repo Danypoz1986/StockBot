@@ -31,7 +31,14 @@ def get_stock_data(ticker, name, period="1mo"):
     return stock_data_str, stock_data.tail(1)['Close'].values[0]
 
 def check_sentiment():
-    news_api_key = os.getenv("NEWS_API_KEY")  # Use environment variable
+    
+    # Access the Vault
+    vault = Vault()
+    
+    # Get the Gmail password from Vault
+    secrets = vault.get_secret("Api_Key")
+    news_api_key = secrets.get("apiKey")  
+    print(f"Retrieved API Key: {news_api_key}")
     if not news_api_key:
         print("Virhe: API-avain ei löytynyt.")
         return None

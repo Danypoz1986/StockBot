@@ -9,5 +9,6 @@ tasks:
 condaConfigFile: conda.yaml  # Links to the conda.yaml for environment setup
 artifactsDir: artifacts  # Directory where RCC will store output artifacts
 
-variables:
-  GMAIL_PASSWORD: ${RC_API_TOKEN_V1}
+secrets:
+  - "Api_Key"      # Secret name for API key stored in the Vault
+  - "GMAIL_pw"     # Secret name for Gmail password stored in the Vault
