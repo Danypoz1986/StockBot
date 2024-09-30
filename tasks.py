@@ -6,11 +6,10 @@ from textblob import TextBlob
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from RPA.Robocorp.Storage import FileStorage
+from robocorp import storage
 import json
 import sys
 
-file_storage = FileStorage()
 
 # Optional UTF-8 reconfiguration
 try:
@@ -97,25 +96,18 @@ def send_email(subject, body):
     except Exception as e:
         print(f"Sähköpostin lähetys epäonnistui: {e}")
 
-# Save the current predictions to an asset
 def save_predictions(predictions):
     print(f"Saving predictions to asset: {predictions}")
 
-    # Convert the predictions dictionary to a JSON string
-    predictions_json = json.dumps(predictions)
-
-    # Save the predictions as an asset in the cloud
-    file_storage.set_text("Stock_Predictions", predictions_json)
+    # Save the predictions as a JSON asset in the cloud
+    storage.set_json("Stock_Predictions", predictions)
     print("Predictions saved successfully in asset.")
 
 # Load the previous predictions from an asset
 def load_previous_predictions():
     try:
         # Retrieve the predictions from the asset storage
-        predictions_json = file_storage.get_tex("Stock_Predictions")
-
-        # Parse the JSON string back to a Python dictionary
-        predictions = json.loads(predictions_json)
+        predictions = storage.get_json("Stock_Predictions")
         print("Previous predictions loaded successfully.")
         return predictions
     except Exception as e:
@@ -162,7 +154,7 @@ def main():
         "STERV.HE": "Stora Enso Oyj"
     }
     
-     # Load previous predictions
+    # Load previous predictions
     prev_predictions = load_previous_predictions()
 
     # Print the previous predictions if they exist
@@ -170,13 +162,9 @@ def main():
         print("Previous predictions:", json.dumps(prev_predictions, indent=4, ensure_ascii=False))
     else:
         print("Ei aiempia ennusteita vertailtavaksi.")  # No previous predictions available
-
-    # Rest of your code...
-
     
+    # Compare the previous predictions with the current data
     comparison_results = compare_predictions(prev_predictions, companies)
-    
-   
 
     # Fetch and format stock data for each company and save predictions
     stock_data_str = ""
