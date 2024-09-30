@@ -72,7 +72,7 @@ def check_sentiment():
 
 def send_email(subject, body):
     sender_email = "daniel.pozzoli86@gmail.com"
-    receiver_emails = ["dap00004@laurea.fi"]
+    receiver_emails = ["dap00004@laurea.fi", "janne.juote@student.laurea.fi", "kati.tuukkanen@student.laurea.fi"]
 
     # Access the Vault
     vault = Vault()
