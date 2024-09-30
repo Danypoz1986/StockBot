@@ -6,21 +6,18 @@ from textblob import TextBlob
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from RPA.Robocorp.Storage import File
 import json
-import os
+
 import sys
+
+file_storage = File()
 
 # Optional UTF-8 reconfiguration
 try:
     sys.stdout.reconfigure(encoding='utf-8')
 except AttributeError:
     pass
-
-PREDICTIONS_FILE = "predictions.json"
-
-# Set the artifact directory and path for the predictions file
-ARTIFACTS_DIR = os.getenv("ROBOT_ARTIFACTS", "artifacts")  # Environment variable or default "artifacts"
-PREDICTIONS_FILE = os.path.join(ARTIFACTS_DIR, "predictions.json")  # Set the path for the predictions.json file
 
 def get_stock_data(ticker, name, period="1mo"):
     stock = yf.Ticker(ticker)
@@ -72,7 +69,7 @@ def check_sentiment():
 
 def send_email(subject, body):
     sender_email = "daniel.pozzoli86@gmail.com"
-    receiver_emails = ["dap00004@laurea.fi", "janne.juote@student.laurea.fi", "kati.tuukkanen@student.laurea.fi"]
+    receiver_emails = ["dap00004@laurea.fi"]
 
     # Access the Vault
     vault = Vault()
@@ -101,19 +98,20 @@ def send_email(subject, body):
     except Exception as e:
         print(f"Sähköpostin lähetys epäonnistui: {e}")
 
-# Save the current predictions to a file
+# Save the predictions to an asset
 def save_predictions(predictions):
-    print(f"Saving predictions: {predictions}")  # Debugging print statement
-    with open(PREDICTIONS_FILE, "w") as f:
-        json.dump(predictions, f)
-    print("Predictions saved successfully.")
+    print(f"Saving predictions to asset: {predictions}")
+    file_storage.save_asset("Stock_Predictions", predictions)
+    print("Predictions saved successfully in asset.")
 
 # Load the previous predictions from a file
 def load_previous_predictions():
-    if os.path.exists(PREDICTIONS_FILE):
-        with open(PREDICTIONS_FILE, "r") as f:
-            return json.load(f)
-    return None
+    try:
+        predictions = file_storage.load_asset("Stock_Predictions")
+        return predictions
+    except Exception:
+        print("Ei aiempia ennusteita vertailtavaksi.")  # No previous predictions available
+        return None
 
 # Compare predictions with actual stock movements and return results in Finnish
 def compare_predictions(prev_predictions, companies):
@@ -154,9 +152,22 @@ def main():
         "KESKOA.HE": "Kesko Oyj",
         "STERV.HE": "Stora Enso Oyj"
     }
-
+    
+     # Load previous predictions
     prev_predictions = load_previous_predictions()
+
+    # Print the previous predictions if they exist
+    if prev_predictions:
+        print("Previous predictions:", json.dumps(prev_predictions, indent=4, ensure_ascii=False))
+    else:
+        print("Ei aiempia ennusteita vertailtavaksi.")  # No previous predictions available
+
+    # Rest of your code...
+
+    
     comparison_results = compare_predictions(prev_predictions, companies)
+    
+   
 
     # Fetch and format stock data for each company and save predictions
     stock_data_str = ""
