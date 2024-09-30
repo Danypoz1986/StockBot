@@ -106,12 +106,15 @@ def save_predictions(predictions):
 # Load the previous predictions from an asset
 def load_previous_predictions():
     try:
-        # Retrieve the predictions from the asset storage
+        # Retrieve the predictions from the asset storage as JSON
         predictions = storage.get_json("Stock_Predictions")
+
+        # Print success message
         print("Previous predictions loaded successfully.")
         return predictions
     except Exception as e:
-        print(f"Ei aiempia ennusteita vertailtavaksi. Error: {e}")  # No previous predictions available
+        # Only print this message once in case of an error
+        print(f"Ei aiempia ennusteita vertailtavaksi. Error: {e}")
         return None
 
 # Compare predictions with actual stock movements and return results in Finnish
@@ -156,12 +159,6 @@ def main():
     
     # Load previous predictions
     prev_predictions = load_previous_predictions()
-
-    # Print the previous predictions if they exist
-    if prev_predictions:
-        print("Previous predictions:", json.dumps(prev_predictions, indent=4, ensure_ascii=False))
-    else:
-        print("Ei aiempia ennusteita vertailtavaksi.")  # No previous predictions available
     
     # Compare the previous predictions with the current data
     comparison_results = compare_predictions(prev_predictions, companies)
@@ -190,7 +187,7 @@ def main():
     email_subject = "Pörssimarkkinoiden analyysipäivitys"
     email_body = (
         f"Osakedata (viimeiset 5 päivää):\n{stock_data_str}\n\n"
-        f"Viime viikon ennusteiden vertailu:\n{comparison_results}\n\n"
+        f"Viime viikon ennusteiden vertailu:\n{comparison_results}\n"
         f"Sentimenttipisteet: {sentiment_word}\n\n"
         f"Markkinasuositus: {suggestion}\n"
     )
