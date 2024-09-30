@@ -6,11 +6,11 @@ from textblob import TextBlob
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from RPA.Robocorp.Storage import Storage
+from RPA.Robocorp.Storage import FileStorage
 import json
 import sys
 
-file_storage = Storage()
+file_storage = FileStorage()
 
 # Optional UTF-8 reconfiguration
 try:
@@ -105,14 +105,14 @@ def save_predictions(predictions):
     predictions_json = json.dumps(predictions)
 
     # Save the predictions as an asset in the cloud
-    file_storage.set_asset("Stock_Predictions", predictions_json)
+    file_storage.set_text("Stock_Predictions", predictions_json)
     print("Predictions saved successfully in asset.")
 
 # Load the previous predictions from an asset
 def load_previous_predictions():
     try:
         # Retrieve the predictions from the asset storage
-        predictions_json = file_storage.get_asset("Stock_Predictions")
+        predictions_json = file_storage.get_tex("Stock_Predictions")
 
         # Parse the JSON string back to a Python dictionary
         predictions = json.loads(predictions_json)
