@@ -187,7 +187,7 @@ def main():
     email_subject = "Pörssimarkkinoiden analyysipäivitys"
     email_body = (
         f"Osakedata (viimeiset 5 päivää):\n{stock_data_str}\n\n"
-        f"Viime viikon ennusteiden vertailu:\n{comparison_results}\n"
+        f"Viime viikon ennusteiden vertailu:\n{comparison_results}\n\n"
         f"Sentimenttipisteet: {sentiment_word}\n\n"
         f"Markkinasuositus: {suggestion}\n"
     )
