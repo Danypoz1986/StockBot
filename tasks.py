@@ -8,7 +8,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from RPA.Robocorp.Storage import Storage
 import json
-
 import sys
 
 file_storage = Storage()
