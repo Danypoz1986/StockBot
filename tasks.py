@@ -18,6 +18,10 @@ except AttributeError:
 
 PREDICTIONS_FILE = "predictions.json"
 
+# Set the artifact directory and path for the predictions file
+ARTIFACTS_DIR = os.getenv("ROBOT_ARTIFACTS", "artifacts")  # Environment variable or default "artifacts"
+PREDICTIONS_FILE = os.path.join(ARTIFACTS_DIR, "predictions.json")  # Set the path for the predictions.json file
+
 def get_stock_data(ticker, name, period="1mo"):
     stock = yf.Ticker(ticker)
     stock_data = stock.history(period=period)[['Open', 'High', 'Low', 'Close']].tail(5)
@@ -25,9 +29,9 @@ def get_stock_data(ticker, name, period="1mo"):
     stock_data_str += f"{'Date':<25} {'Open':<10} {'High':<10} {'Low':<10} {'Close':<10}\n"
     
     for index, row in stock_data.iterrows():
-        date_str = index.strftime('%Y-%m-%d')
+        date_str = index.strftime('%d-%m-%Y')
         stock_data_str += f"{date_str:<25} {row['Open']:<10.2f} {row['High']:<10.2f} {row['Low']:<10.2f} {row['Close']:<10.2f}\n"
-
+        
     return stock_data_str, stock_data.tail(1)['Close'].values[0]
 
 def check_sentiment():
@@ -38,7 +42,7 @@ def check_sentiment():
     # Get the Gmail password from Vault
     secrets = vault.get_secret("Api_Key")
     news_api_key = secrets.get("apiKey")  
-    print(f"Retrieved API Key: {news_api_key}")
+    
     if not news_api_key:
         print("Virhe: API-avain ei löytynyt.")
         return None
@@ -57,7 +61,7 @@ def check_sentiment():
     if not sentiments:
         print("Artikkeleista ei löytynyt kelvollisia tunteita.")
         return 0, "neutraali", "Pidä"  # Return neutral sentiment and suggestion
-
+    
     avg_sentiment = sum(sentiments) / len(sentiments)
     if avg_sentiment > 0.1:
         return avg_sentiment, "positiivinen", "Osta"
@@ -97,11 +101,12 @@ def send_email(subject, body):
     except Exception as e:
         print(f"Sähköpostin lähetys epäonnistui: {e}")
 
-
 # Save the current predictions to a file
 def save_predictions(predictions):
+    print(f"Saving predictions: {predictions}")  # Debugging print statement
     with open(PREDICTIONS_FILE, "w") as f:
         json.dump(predictions, f)
+    print("Predictions saved successfully.")
 
 # Load the previous predictions from a file
 def load_previous_predictions():
