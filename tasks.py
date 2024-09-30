@@ -6,12 +6,12 @@ from textblob import TextBlob
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from RPA.Robocorp.Storage import File
+from RPA.Robocorp.Storage import Storage
 import json
 
 import sys
 
-file_storage = File()
+file_storage = Storage()
 
 # Optional UTF-8 reconfiguration
 try:
@@ -98,19 +98,29 @@ def send_email(subject, body):
     except Exception as e:
         print(f"Sähköpostin lähetys epäonnistui: {e}")
 
-# Save the predictions to an asset
+# Save the current predictions to an asset
 def save_predictions(predictions):
     print(f"Saving predictions to asset: {predictions}")
-    file_storage.save_asset("Stock_Predictions", predictions)
+
+    # Convert the predictions dictionary to a JSON string
+    predictions_json = json.dumps(predictions)
+
+    # Save the predictions as an asset in the cloud
+    file_storage.set_asset("Stock_Predictions", predictions_json)
     print("Predictions saved successfully in asset.")
 
-# Load the previous predictions from a file
+# Load the previous predictions from an asset
 def load_previous_predictions():
     try:
-        predictions = file_storage.load_asset("Stock_Predictions")
+        # Retrieve the predictions from the asset storage
+        predictions_json = file_storage.get_asset("Stock_Predictions")
+
+        # Parse the JSON string back to a Python dictionary
+        predictions = json.loads(predictions_json)
+        print("Previous predictions loaded successfully.")
         return predictions
-    except Exception:
-        print("Ei aiempia ennusteita vertailtavaksi.")  # No previous predictions available
+    except Exception as e:
+        print(f"Ei aiempia ennusteita vertailtavaksi. Error: {e}")  # No previous predictions available
         return None
 
 # Compare predictions with actual stock movements and return results in Finnish
