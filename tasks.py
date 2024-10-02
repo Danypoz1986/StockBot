@@ -7,6 +7,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from robocorp import storage
+from datetime import datetime
 import sys
 
 
@@ -15,6 +16,9 @@ try:
     sys.stdout.reconfigure(encoding='utf-8')
 except AttributeError:
     pass
+
+# Set a threshold for significant stock price changes
+THRESHOLD_PERCENTAGE = 5  # 5% change
 
 def get_stock_data(ticker, name, period="1mo"):
     stock = yf.Ticker(ticker)
@@ -33,7 +37,7 @@ def check_sentiment():
     # Access the Vault
     vault = Vault()
     
-    # Get the Gmail password from Vault
+    # Get the API key from the vault
     secrets = vault.get_secret("Api_Key")
     news_api_key = secrets.get("apiKey")  
     
@@ -95,54 +99,61 @@ def send_email(subject, body):
     except Exception as e:
         print(f"Sähköpostin lähetys epäonnistui: {e}")
 
+def send_threshold_email(company_name, direction, prev_close, current_close, percentage_change):
+    subject = f"Tärkeä ilmoitus: {company_name} osake on {direction}"
+    body = (
+        f"Yritys: {company_name}\n"
+        f"Edellinen Close: {prev_close}\n"
+        f"Nykyinen Close: {current_close}\n"
+        f"Muutosprosentti: {percentage_change:.2f}%\n"
+        f"Osake on {direction} merkittävästi."
+    )
+
+    # Send the email immediately with the stock details
+    send_email(subject, body)
+
 def save_predictions(predictions):
-    print(f"Saving predictions to asset: {predictions}")
+    print(f"Tallennetaan ennusteet: {predictions}")
 
     # Save the predictions as a JSON asset in the cloud
     storage.set_json("Stock_Predictions", predictions)
-    print("Predictions saved successfully in asset.")
+    print("Ennusteet tallennettu onnistuneesti.")
 
 # Load the previous predictions from an asset
 def load_previous_predictions():
     try:
-        # Retrieve the predictions from the asset storage as JSON
         predictions = storage.get_json("Stock_Predictions")
-
-        # Print success message
-        print("Previous predictions loaded successfully.")
+        print("Aikaisemmat ennusteet ladattu onnistuneesti.")
         return predictions
     except Exception as e:
-        # Only print this message once in case of an error
         print(f"Ei aiempia ennusteita vertailtavaksi. Error: {e}")
         return None
 
-# Compare predictions with actual stock movements and return results in Finnish
 def compare_predictions(prev_predictions, companies):
     if not prev_predictions:
         return "Ei aiempia ennusteita vertailtavaksi."
 
     comparison_results = ""
     for ticker, data in prev_predictions.items():
-        company_name = companies.get(ticker, ticker)  # Fetch the company name using the ticker
+        company_name = companies.get(ticker, ticker)
         prev_close = data['close']
         current_close = yf.Ticker(ticker).history(period="1d").tail(1)['Close'].values[0]
-        prediction = data['suggestion']
 
-        if prediction == "Osta" and current_close > prev_close:
-            comparison_results += f"{company_name}: Ennuste oli oikea (Osta).\n"
-        elif prediction == "Myy" and current_close < prev_close:
-            comparison_results += f"{company_name}: Ennuste oli oikea (Myy).\n"
-        elif prediction == "Pidä" and abs(current_close - prev_close) < 0.5:  # Assume <0.5 difference means stable
-            comparison_results += f"{company_name}: Ennuste oli oikea (Pidä).\n"
+        percentage_change = ((current_close - prev_close) / prev_close) * 100
+
+        if percentage_change > THRESHOLD_PERCENTAGE:
+            send_threshold_email(company_name, "noussut merkittävästi", prev_close, current_close, percentage_change)
+            comparison_results += f"{company_name}: Osake on noussut merkittävästi (Muutos: +{percentage_change:.2f}%).\n"
+        elif percentage_change < -THRESHOLD_PERCENTAGE:
+            send_threshold_email(company_name, "laskenut merkittävästi", prev_close, current_close, percentage_change)
+            comparison_results += f"{company_name}: Osake on laskenut merkittävästi (Muutos: {percentage_change:.2f}%).\n"
         else:
-            comparison_results += f"{company_name}: Ennuste oli väärä (Ennustettu {prediction}, mutta hinta {'nousi' if current_close > prev_close else 'laski'}).\n"
+            comparison_results += f"{company_name}: Ennuste oli oikea (Pidä).\n"
 
     return comparison_results
 
 @task 
-
 def main():
-    # List of company tickers and full names
     companies = {
         "NOKIA.HE": "Nokia Oyj",
         "KNEBV.HE": "Kone Oyj",
@@ -156,13 +167,9 @@ def main():
         "STERV.HE": "Stora Enso Oyj"
     }
     
-    # Load previous predictions
     prev_predictions = load_previous_predictions()
-    
-    # Compare the previous predictions with the current data
     comparison_results = compare_predictions(prev_predictions, companies)
 
-    # Fetch and format stock data for each company and save predictions
     stock_data_str = ""
     predictions = {}
     sentiment_word = "unknown"
@@ -179,10 +186,8 @@ def main():
         else:
             print(f"Sentimenttianalyysi epäonnistui {name}, ohitetaan...")
 
-    # Save current predictions
     save_predictions(predictions)
 
-    # Prepare email body
     email_subject = "Pörssimarkkinoiden analyysipäivitys"
     email_body = (
         f"Osakedata (viimeiset 5 päivää):\n{stock_data_str}\n\n"
@@ -191,8 +196,9 @@ def main():
         f"Markkinasuositus: {suggestion}\n"
     )
 
-    # Send the email
-    send_email(email_subject, email_body)
+    current_hour = datetime.now().hour
+    if current_hour == 18:
+        send_email(email_subject, email_body)
 
 if __name__ == "__main__":
     main()
