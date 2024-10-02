@@ -10,3 +10,4 @@ dependencies:
       - textblob
       - robocorp
       - pytz
+      - boto3
